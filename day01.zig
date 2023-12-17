@@ -1,58 +1,72 @@
 const std = @import("std");
-const str = @embedFile("inputs/day01.txt");
+const input = @embedFile("inputs/day01.txt");
+
+const expect = std.testing.expect;
 
 pub fn main() !void {
-    std.debug.print("Part 1: {d}\n", .{part1(str)});
-    std.debug.print("Part 2: {d}\n", .{part2()});
+    const p1 = part1(input);
+    const p2 = part2();
+
+    std.debug.print("Part 1: {d}\n", .{p1});
+    std.debug.print("Part 2: {d}\n", .{p2});
 }
 
-fn part1(input: []const u8) i32 {
-    var lines = std.mem.tokenize(u8, input, "\n");
+fn part1(inputStr: []const u8) i64 {
+    var lines = std.mem.tokenizeScalar(u8, inputStr, '\n');
 
-    var sum: i32 = 0;
+    var res: i64 = 0;
     while (lines.next()) |line| {
-        var firstNumber: i32 = -1;
-        var lastNumber: i32 = -1;
+        var first_digit: ?u8 = null;
+        var last_digit: ?u8 = null;
         for (line) |c| {
             if (c >= '0' and c <= '9') {
-                if (firstNumber == -1) {
-                    firstNumber = c - '0';
+                const numericValue = c - '0';
+                if (first_digit == null) {
+                    first_digit = numericValue;
                 }
-                lastNumber = c - '0';
+                last_digit = numericValue;
             }
         }
 
-        const totalNumber = firstNumber * 10 + lastNumber;
-        sum += totalNumber;
+        const total_number = first_digit.? * 10 + last_digit.?;
+        res += total_number;
     }
-    return sum;
+    return res;
 }
 
-const Replacement = struct {
-    old: []const u8,
-    new: []const u8,
-};
-
-pub fn part2() i32 {
+pub fn part2() i64 {
     var gpa = std.heap.GeneralPurposeAllocator(.{}){};
     const allocator = gpa.allocator();
-    const str2 = allocator.dupe(u8, str) catch unreachable;
+    const cloned_str = allocator.dupe(u8, input) catch unreachable;
+
+    const Replacement = struct {
+        needle: []const u8,
+        replacement: []const u8,
+    };
 
     const replacements = [_]Replacement{
-        .{ .old = "one", .new = "o1e" },
-        .{ .old = "two", .new = "t2o" },
-        .{ .old = "three", .new = "th3ee" },
-        .{ .old = "four", .new = "f4ur" },
-        .{ .old = "five", .new = "f5ve" },
-        .{ .old = "six", .new = "s6x" },
-        .{ .old = "seven", .new = "se7en" },
-        .{ .old = "eight", .new = "ei8ht" },
-        .{ .old = "nine", .new = "n9ne" },
+        .{ .needle = "one", .replacement = "o1e" },
+        .{ .needle = "two", .replacement = "t2o" },
+        .{ .needle = "three", .replacement = "th3ee" },
+        .{ .needle = "four", .replacement = "f4ur" },
+        .{ .needle = "five", .replacement = "f5ve" },
+        .{ .needle = "six", .replacement = "s6x" },
+        .{ .needle = "seven", .replacement = "se7en" },
+        .{ .needle = "eight", .replacement = "ei8ht" },
+        .{ .needle = "nine", .replacement = "n9ne" },
     };
 
     for (replacements) |r| {
-        _ = std.mem.replace(u8, str2, r.old, r.new, str2);
+        _ = std.mem.replace(u8, cloned_str, r.needle, r.replacement, cloned_str);
     }
 
-    return part1(str2);
+    return part1(cloned_str);
+}
+
+test "Part 1" {
+    try expect(part1(input) == 55712);
+}
+
+test "Part 2" {
+    try expect(part2() == 55413);
 }
