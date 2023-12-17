@@ -1,5 +1,5 @@
 const std = @import("std");
-const str = @embedFile("day14.txt");
+const str = @embedFile("inputs/day14.txt");
 const N = 100;
 const ITERATIONS = 1_000_000_000;
 

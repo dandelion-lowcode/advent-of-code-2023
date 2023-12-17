@@ -1,5 +1,5 @@
 const std = @import("std");
-const str = @embedFile("day11.txt");
+const str = @embedFile("inputs/day11.txt");
 
 const Allocator = std.mem.Allocator;
 const Line = std.ArrayList(bool);

@@ -1,5 +1,5 @@
 const std = @import("std");
-const str = @embedFile("day15.txt");
+const str = @embedFile("inputs/day15.txt");
 const ArrayList = std.ArrayList;
 
 const Instruction = struct { tag: []const u8, command: Command };

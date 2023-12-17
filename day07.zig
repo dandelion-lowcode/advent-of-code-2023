@@ -1,6 +1,6 @@
 const std = @import("std");
 const expect = std.testing.expect;
-const str = @embedFile("day07.txt");
+const str = @embedFile("inputs/day07.txt");
 const Allocator = std.mem.Allocator;
 
 const Card = enum { A, K, Q, J, T, NINE, EIGHT, SEVEN, SIX, FIVE, FOUR, THREE, TWO };

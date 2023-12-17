@@ -1,5 +1,5 @@
 const std = @import("std");
-const str = @embedFile("day10.txt");
+const str = @embedFile("inputs/day10.txt");
 const N = 11; //140
 
 const Matrix = [N][N]u8;

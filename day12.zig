@@ -1,6 +1,6 @@
 const std = @import("std");
 const expect = std.testing.expect;
-const str = @embedFile("day12.txt");
+const str = @embedFile("inputs/day12.txt");
 
 pub fn main() !void {
     const p1 = part1();

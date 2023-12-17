@@ -2,7 +2,7 @@ const std = @import("std");
 const expect = std.testing.expect;
 const Allocator = std.mem.Allocator;
 
-const str = @embedFile("day08.txt");
+const str = @embedFile("inputs/day08.txt");
 
 const Targets = struct {
     left: [3]u8,

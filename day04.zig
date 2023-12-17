@@ -1,5 +1,5 @@
 const std = @import("std");
-const str = @embedFile("day04.txt");
+const str = @embedFile("inputs/day04.txt");
 const Allocator = std.mem.Allocator;
 
 const N_WINNING = 10;

@@ -1,5 +1,5 @@
 const std = @import("std");
-const str = @embedFile("day01.txt");
+const str = @embedFile("inputs/day01.txt");
 
 pub fn main() !void {
     std.debug.print("Part 1: {d}\n", .{part1(str)});
