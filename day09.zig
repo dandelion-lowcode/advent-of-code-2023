@@ -1,72 +1,63 @@
 const std = @import("std");
+const str = @embedFile("inputs/day09.txt");
+const NUMBERS_PER_LINE = 21;
 
 pub fn main() void {
+    const p1, const p2 = findNextAndPrevious(str);
+    std.debug.print("Part 1: {d}\n", .{p1});
+    std.debug.print("Part 2: {d}\n", .{p2});
+}
+
+const Pair = struct { i64, i64 };
+pub fn findNextAndPrevious(input: []const u8) Pair {
+    var p1: i64 = 0;
+    var p2: i64 = 0;
+
+    var line_iterator = std.mem.tokenizeScalar(u8, input, '\n');
+    while (line_iterator.next()) |line| {
+        var space_iterator = std.mem.tokenizeScalar(u8, line, ' ');
+        var numbers: [NUMBERS_PER_LINE]i64 = undefined;
+        var numberIdx: usize = 0;
+        while (space_iterator.next()) |numStr| : (numberIdx += 1) {
+            numbers[numberIdx] = std.fmt.parseInt(i64, numStr, 10) catch unreachable;
+        }
+        p1 += findNext(&numbers);
+        p2 += findPrevious(&numbers);
+    }
+
+    return .{ p1, p2 };
+}
+
+fn findNext(numbers: []const i64) i64 {
     var gpa = std.heap.GeneralPurposeAllocator(.{}){};
     const allocator = gpa.allocator();
 
-    const line = "4 3 2 1 0 -1 -2 -3 -4 -5 -6 -7 -8 -9 -10 -11 -12 -13 -14 -15 -16";
-    var tokenized = std.mem.tokenize(u8, line, " ");
-    var numbers = std.ArrayList(i64).init(allocator);
-    while (tokenized.next()) |token| {
-        const number = std.fmt.parseInt(i64, token, 10) catch unreachable;
-        numbers.append(number) catch unreachable;
+    const N = numbers.len;
+
+    // Base case: if the difference between all numbers is constant,
+    // return the last number + the difference
+
+    var differences = std.ArrayList(i64).init(allocator);
+    for (1..N) |i| {
+        differences.append(numbers[i] - numbers[i - 1]) catch unreachable;
     }
 
-    var listOfLists = std.ArrayList(std.ArrayList(i64)).init(allocator);
-    listOfLists.append(numbers) catch unreachable;
-    var array = numbers;
-    while (!allZeros(array)) {
-        array = diffArray(array);
-        listOfLists.append(array) catch unreachable;
+    const allOfThemEqual = std.mem.allEqual(i64, differences.items, differences.items[0]);
+    if (allOfThemEqual) {
+        return numbers[N - 1] + differences.items[0];
     }
 
-    // Add a 0 to the end of the last list
-    listOfLists.items[listOfLists.items.len - 1].append(0) catch unreachable;
-
-    var I: i32 = @as(i32, @intCast(listOfLists.items.len)) - 2;
-    while (I >= 0) : (I -= 1) {
-        const idx = @as(usize, @intCast(I));
-        const lastOfNext = listOfLists.items[idx + 1].items[listOfLists.items[idx + 1].items.len - 1];
-        const lastOfCurrent = listOfLists.items[idx].items[listOfLists.items[idx].items.len - 1];
-        const newItem = lastOfCurrent + lastOfNext;
-        listOfLists.items[idx].append(newItem) catch unreachable;
-
-        for (listOfLists.items, 0..) |list, it| {
-            std.debug.print("list {d}: ", .{it});
-            printNumbers(list);
-        }
-
-        std.debug.print("--------------------\n", .{});
-    }
-
-    const lastOfFirst = listOfLists.items[0].items[listOfLists.items[0].items.len - 1];
-    std.debug.print("result: {d}\n", .{lastOfFirst});
+    // Otherwise, recurse on the differences
+    return numbers[N - 1] + findNext(differences.items);
 }
 
-fn printNumbers(numbers: std.ArrayList(i64)) void {
-    for (numbers.items) |number| {
-        std.debug.print("{d} ", .{number});
-    }
-    std.debug.print("\n", .{});
+fn findPrevious(numbers: []i64) i64 {
+    std.mem.reverse(i64, numbers);
+    return findNext(numbers);
 }
 
-fn diffArray(numbers: std.ArrayList(i64)) std.ArrayList(i64) {
-    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
-    const allocator = gpa.allocator();
-
-    var diffs = std.ArrayList(i64).init(allocator);
-    for (1..numbers.items.len) |i| {
-        const diff = numbers.items[i] - numbers.items[i - 1];
-        diffs.append(diff) catch unreachable;
-    }
-    return diffs;
-}
-
-fn allZeros(numbers: std.ArrayList(i64)) bool {
-    for (numbers.items) |number| {
-        if (number != 0) {
-            return false;
-        }
-    }
-    return true;
+test "Parts 1 and 2" {
+    const p1, const p2 = findNextAndPrevious(str);
+    try std.testing.expect(p1 == 1993300041);
+    try std.testing.expect(p2 == 1038);
 }
